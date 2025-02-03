@@ -7,6 +7,7 @@ export class AppController {
 
   @Get('rate')
   async getRate(@Query('base') base: string, @Query('target') target: string) {
-    return this.currencyApiService.getExchangeRate(base, target);
+    const rate = await this.currencyApiService.getExchangeRate(base, target);
+    return { rate };
   }
 }
