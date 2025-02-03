@@ -1,0 +1,23 @@
+services:
+  db:
+    image: bitnami/postgresql:latest
+    container_name: currency_converter_db
+    environment:
+      POSTGRES_USER: currency_user
+      POSTGRES_PASSWORD: currency_pass
+      POSTGRES_DB: currency_converter
+    ports:
+      - '5432:5432'
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    restart: always
+
+  redis:
+    image: redis:7
+    container_name: currency_converter_redis
+    ports:
+      - '6379:6379'
+    restart: always
+
+volumes:
+  pg_data:
