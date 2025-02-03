@@ -91,6 +91,5 @@ Este projeto é de código aberto e está sob a licença MIT.
 
 👨‍💻 Desenvolvido por Deyvison Tavares
 
----
 
 ```
