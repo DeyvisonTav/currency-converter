@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
+import { CurrencyApiModule } from './clients/providers/integrations/currency-api/currency-api.module';
 
 @Module({
-  imports: [],
+  imports: [CurrencyApiModule],
   controllers: [],
   providers: [],
 })
