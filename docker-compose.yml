@@ -18,6 +18,7 @@ services:
     ports:
       - '6379:6379'
     restart: always
+    command: ['redis-server', '--appendonly', 'yes']
 
 volumes:
   pg_data:
