@@ -1,22 +1,17 @@
-import { Injectable, Inject, HttpException } from '@nestjs/common';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Cache } from 'cache-manager';
+import { Injectable, HttpException } from '@nestjs/common';
+import { CacheService } from 'src/core/cache/cache.service';
 import axios from 'axios';
-import Redis from 'ioredis';
 
 @Injectable()
 export class CurrencyApiService {
-  private readonly apiUrl = process.env.CURRENCY_API_URL;
+  private readonly apiUrl = 'https://economia.awesomeapi.com.br/json/last';
 
-  constructor(
-    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
-    @Inject('REDIS_CLIENT') private readonly redisClient: Redis,
-  ) {}
+  constructor(private readonly cacheService: CacheService) {}
 
   async getExchangeRate(base: string, target: string): Promise<number> {
     const cacheKey = `rate:${base}:${target}`;
 
-    const cachedRate = await this.cacheManager.get<number>(cacheKey);
+    const cachedRate = await this.cacheService.get<number>(cacheKey);
     if (cachedRate) return cachedRate;
 
     try {
@@ -27,7 +22,7 @@ export class CurrencyApiService {
         const rate = parseFloat(response.data[rateKey].bid);
 
         if (!isNaN(rate)) {
-          await this.redisClient.set(cacheKey, rate.toString(), 'EX', 86400);
+          await this.cacheService.set(cacheKey, rate, 86400);
           return rate;
         }
       }
