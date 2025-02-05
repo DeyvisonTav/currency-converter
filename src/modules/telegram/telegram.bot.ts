@@ -31,7 +31,6 @@ export class TelegramBotService implements OnModuleInit {
       const chatId = msg.chat.id;
       const text = msg.text.trim();
 
-      // Ignore messages that start with '/'
       if (text.startsWith('/')) {
         return;
       }
