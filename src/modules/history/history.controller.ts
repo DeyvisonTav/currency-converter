@@ -25,7 +25,6 @@ export class HistoryController {
     @Query('chatId') chatId?: string,
     @Query('userId') userId?: string,
   ) {
-    // Associa o histórico ao `chatId` ou `userId`, se fornecidos
     const metadata = { chatId, userId };
     return this.historyService.saveConversion({ ...conversionData, metadata });
   }

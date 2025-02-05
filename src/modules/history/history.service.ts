@@ -52,7 +52,6 @@ export class HistoryService {
     });
   }
 
-  // Adicionado: Obtém histórico filtrado por base e target (sem chatId ou userId)
   async getHistoryByBaseAndTarget(
     base: string,
     target: string,
