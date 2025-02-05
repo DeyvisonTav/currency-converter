@@ -2,6 +2,7 @@ import * as TelegramBot from 'node-telegram-bot-api';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ConversionService } from '../conversion/conversion.service';
 import { HistoryService } from '../history/history.service';
+import { AlertService } from '../alert/alert.service';
 
 @Injectable()
 export class TelegramBotService implements OnModuleInit {
@@ -10,6 +11,7 @@ export class TelegramBotService implements OnModuleInit {
   constructor(
     private readonly conversionService: ConversionService,
     private readonly historyService: HistoryService,
+    private readonly alertService: AlertService,
   ) {}
 
   onModuleInit() {
@@ -25,6 +27,51 @@ export class TelegramBotService implements OnModuleInit {
   private initializeCommands() {
     this.bot.onText(/\/start/, (msg) => {
       this.sendMenu(msg.chat.id);
+    });
+
+    this.bot.onText(/\/alertar (\w{3}) (\w{3})/, async (msg, match) => {
+      const chatId = msg.chat.id;
+      const base = match[1].toUpperCase();
+      const target = match[2].toUpperCase();
+
+      await this.alertService.addAlert(chatId.toString(), base, target);
+      this.bot.sendMessage(
+        chatId,
+        this.escapeMarkdownV2(
+          `🔔 Alerta ativado para *${base} ➡ ${target}*! Você será notificado sobre mudanças significativas.`,
+        ),
+        { parse_mode: 'MarkdownV2' },
+      );
+    });
+
+    this.bot.onText(/\/cancelar_alerta (\w{3}) (\w{3})/, async (msg, match) => {
+      const chatId = msg.chat.id;
+      const base = match[1].toUpperCase();
+      const target = match[2].toUpperCase();
+
+      const wasRemoved = await this.alertService.removeAlert(
+        chatId.toString(),
+        base,
+        target,
+      );
+
+      if (wasRemoved) {
+        this.bot.sendMessage(
+          chatId,
+          this.escapeMarkdownV2(
+            `🚫 Alerta para *${base} ➡ ${target}* foi cancelado com sucesso.`,
+          ),
+          { parse_mode: 'MarkdownV2' },
+        );
+      } else {
+        this.bot.sendMessage(
+          chatId,
+          this.escapeMarkdownV2(
+            `⚠️ Você não tinha um alerta ativo para *${base} ➡ ${target}*.`,
+          ),
+          { parse_mode: 'MarkdownV2' },
+        );
+      }
     });
 
     this.bot.on('message', async (msg) => {
@@ -44,7 +91,10 @@ export class TelegramBotService implements OnModuleInit {
         case '1':
           this.bot.sendMessage(
             chatId,
-            '📝 Digite no formato: valor moedaOrigem moedaDestino\nExemplo: 100 BRL USD',
+            this.escapeMarkdownV2(
+              '📝 Digite no formato: valor moedaOrigem moedaDestino\nExemplo: `100 BRL USD`',
+            ),
+            { parse_mode: 'MarkdownV2' },
           );
           break;
 
@@ -59,7 +109,10 @@ export class TelegramBotService implements OnModuleInit {
         default:
           this.bot.sendMessage(
             chatId,
-            '⚠️ Comando inválido. Escolha uma opção:\n1️⃣ - Converter moedas\n2️⃣ - Ver histórico\n3️⃣ - Ajuda\nOu digite no formato "valor moedaOrigem moedaDestino".',
+            this.escapeMarkdownV2(
+              '⚠️ Comando inválido. Escolha uma opção:\n1️⃣ - Converter moedas\n2️⃣ - Ver histórico\n3️⃣ - Ajuda\nOu digite no formato "valor moedaOrigem moedaDestino".',
+            ),
+            { parse_mode: 'MarkdownV2' },
           );
       }
     });
@@ -81,16 +134,15 @@ export class TelegramBotService implements OnModuleInit {
 
       this.bot.sendMessage(
         chatId,
-        `✅ Conversão realizada:\n💰 *${amount} ${base.toUpperCase()}* ➡️ *${conversion.convertedAmount.toFixed(
-          2,
-        )} ${target.toUpperCase()}*\n🔄 Taxa de câmbio: *${conversion.rate}*`,
-        { parse_mode: 'Markdown' },
+        this.escapeMarkdownV2(
+          `✅ Conversão realizada:\n💰 *${amount} ${base.toUpperCase()}* ➡️ *${conversion.convertedAmount.toFixed(
+            2,
+          )} ${target.toUpperCase()}*\n🔄 Taxa de câmbio: *${conversion.rate}*`,
+        ),
+        { parse_mode: 'MarkdownV2' },
       );
     } catch (error) {
-      this.bot.sendMessage(
-        chatId,
-        '❌ Erro ao realizar a conversão. Verifique os parâmetros e tente novamente.',
-      );
+      this.bot.sendMessage(chatId, '❌ Erro ao realizar a conversão.');
     }
   }
 
@@ -108,50 +160,54 @@ export class TelegramBotService implements OnModuleInit {
         .slice(0, 5)
         .reverse()
         .map((entry, index) => {
-          const convertedAmount = Number(entry.convertedAmount);
-          const rate = Number(entry.rate);
-
-          return `📌 ${index + 1}: *${entry.amount} ${entry.base}* ➡️ *${convertedAmount.toFixed(
+          return `📌 ${index + 1}: *${entry.amount} ${entry.base}* ➡️ *${entry.convertedAmount.toFixed(
             2,
-          )} ${entry.target}* (Taxa: *${rate}*)`;
+          )} ${entry.target}* (Taxa: *${entry.rate}*)`;
         })
         .join('\n');
 
       this.bot.sendMessage(
         chatId,
-        `📜 *Últimas conversões:*\n${historyMessage}`,
-        { parse_mode: 'Markdown' },
+        this.escapeMarkdownV2(`📜 *Últimas conversões:*\n${historyMessage}`),
+        { parse_mode: 'MarkdownV2' },
       );
     } catch (error) {
-      console.error('Erro ao buscar o histórico:', error);
-      this.bot.sendMessage(
-        chatId,
-        '❌ Erro ao buscar o histórico. Tente novamente mais tarde.',
-      );
+      this.bot.sendMessage(chatId, '❌ Erro ao buscar o histórico.');
     }
   }
 
   private showHelp(chatId: number) {
     this.bot.sendMessage(
       chatId,
-      `ℹ️ *Ajuda*\n\n` +
-        `🔹 *Converter moedas:* Digite "valor moedaOrigem moedaDestino". Exemplo: "100 BRL USD"\n` +
-        `🔹 *Histórico:* Veja as últimas conversões realizadas.\n` +
-        `🔹 *Ajuda:* Exibe esta mensagem.\n` +
-        `🔹 *Exemplo:* Digite "50 EUR USD" para converter 50 euros para dólares.`,
-      { parse_mode: 'Markdown' },
+      this.escapeMarkdownV2(
+        `3️⃣ - Ajuda\n\n` +
+          `1️⃣ - Converter moedas 💱: Digite "valor moedaOrigem moedaDestino". Exemplo: "100 BRL USD"\n` +
+          `2️⃣ - Ver histórico de conversões:  Veja as últimas conversões realizadas.\n` +
+          `🔔 - Alerta:  Ative alertas com "/alertar USD BRL"\n` +
+          `🚫 - Cancelar Alerta: Digite "/cancelar_alerta USD BRL" para remover um alerta\n` +
+          `3️⃣ - Ajuda ℹ️: Exibe esta mensagem.\n`,
+      ),
+      { parse_mode: 'MarkdownV2' },
     );
   }
 
   private sendMenu(chatId: number) {
     this.bot.sendMessage(
       chatId,
-      `👋 Bem-vindo ao *Bot de Conversão de Moedas!*\n\n` +
-        `🔹 Digite um número para escolher uma opção:\n` +
-        `1️⃣ - Converter moedas 💱\n` +
-        `2️⃣ - Ver histórico de conversões 📜\n` +
-        `3️⃣ - Ajuda ℹ️`,
-      { parse_mode: 'Markdown' },
+      this.escapeMarkdownV2(
+        `👋 Bem-vindo ao *Bot de Conversão de Moedas!*\n\n` +
+          `🔹 Digite um número para escolher uma opção:\n` +
+          `1️⃣ - Converter moedas 💱\n` +
+          `2️⃣ - Ver histórico de conversões 📜\n` +
+          `3️⃣ - Ajuda ℹ️\n\n` +
+          `🔔 Ative um alerta com "/alertar USD BRL"\n` +
+          `🚫 Cancele um alerta com "/cancelar_alerta USD BRL"`,
+      ),
+      { parse_mode: 'MarkdownV2' },
     );
+  }
+
+  private escapeMarkdownV2(text: string): string {
+    return text.replace(/([_*[\]()~`>#+\-=|{}.!\\])/g, '\\$1');
   }
 }
