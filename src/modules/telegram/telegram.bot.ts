@@ -31,6 +31,11 @@ export class TelegramBotService implements OnModuleInit {
       const chatId = msg.chat.id;
       const text = msg.text.trim();
 
+      // Ignore messages that start with '/'
+      if (text.startsWith('/')) {
+        return;
+      }
+
       if (/^\d+(\.\d+)? \w{3} \w{3}$/i.test(text)) {
         await this.handleConversion(chatId, text);
         return;
@@ -101,7 +106,8 @@ export class TelegramBotService implements OnModuleInit {
       }
 
       const historyMessage = history
-        .slice(-5)
+        .slice(0, 5)
+        .reverse()
         .map((entry, index) => {
           const convertedAmount = Number(entry.convertedAmount);
           const rate = Number(entry.rate);
