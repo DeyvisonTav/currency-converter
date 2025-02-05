@@ -70,7 +70,6 @@ export class TelegramBotService implements OnModuleInit {
         target.toUpperCase(),
       );
 
-      // Salva o histórico com o chatId
       await this.historyService.saveConversion({
         ...conversion,
         chatId: chatId.toString(),
@@ -97,17 +96,15 @@ export class TelegramBotService implements OnModuleInit {
         chatId.toString(),
       );
 
-      console.log('Histórico retornado:', history); // Log para verificar o retorno
-
       if (history.length === 0) {
         return this.bot.sendMessage(chatId, '📜 Nenhum histórico encontrado.');
       }
 
       const historyMessage = history
-        .slice(-5) // Exibe os últimos 5 registros
+        .slice(-5)
         .map((entry, index) => {
-          const convertedAmount = Number(entry.convertedAmount); // Converte para número
-          const rate = Number(entry.rate); // Converte para número
+          const convertedAmount = Number(entry.convertedAmount);
+          const rate = Number(entry.rate);
 
           return `📌 ${index + 1}: *${entry.amount} ${entry.base}* ➡️ *${convertedAmount.toFixed(
             2,
@@ -121,7 +118,7 @@ export class TelegramBotService implements OnModuleInit {
         { parse_mode: 'Markdown' },
       );
     } catch (error) {
-      console.error('Erro ao buscar o histórico:', error); // Log para depuração
+      console.error('Erro ao buscar o histórico:', error);
       this.bot.sendMessage(
         chatId,
         '❌ Erro ao buscar o histórico. Tente novamente mais tarde.',
