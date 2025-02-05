@@ -3,9 +3,15 @@ import { CurrencyApiModule } from './clients/providers/integrations/currency-api
 import { AppController } from './app.controller';
 import { ConversionModule } from './modules/conversion/conversion.module';
 import { DatabaseModule } from './core/ database/database.module';
+import { TelegramModule } from './modules/telegram/telegram.module';
 
 @Module({
-  imports: [DatabaseModule, CurrencyApiModule, ConversionModule],
+  imports: [
+    TelegramModule,
+    DatabaseModule,
+    CurrencyApiModule,
+    ConversionModule,
+  ],
   controllers: [AppController],
   providers: [],
 })

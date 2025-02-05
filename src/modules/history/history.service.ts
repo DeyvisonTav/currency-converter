@@ -16,14 +16,56 @@ export class HistoryService {
     return this.historyRepository.save(data);
   }
 
-  async getAllHistory(): Promise<ConversionHistory[]> {
-    return this.historyRepository.find();
+  async getHistoryByChatId(chatId: string): Promise<ConversionHistory[]> {
+    return this.historyRepository.find({
+      where: { chatId },
+      order: { timestamp: 'DESC' },
+    });
   }
 
+  async getHistoryByUserId(userId: string): Promise<ConversionHistory[]> {
+    return this.historyRepository.find({
+      where: { metadata: { userId } },
+      order: { timestamp: 'DESC' },
+    });
+  }
+
+  async getFilteredHistoryByChatId(
+    base: string,
+    target: string,
+    chatId: string,
+  ): Promise<ConversionHistory[]> {
+    return this.historyRepository.find({
+      where: { base, target, metadata: { chatId } },
+      order: { timestamp: 'DESC' },
+    });
+  }
+
+  async getFilteredHistoryByUserId(
+    base: string,
+    target: string,
+    userId: string,
+  ): Promise<ConversionHistory[]> {
+    return this.historyRepository.find({
+      where: { base, target, metadata: { userId } },
+      order: { timestamp: 'DESC' },
+    });
+  }
+
+  // Adicionado: Obtém histórico filtrado por base e target (sem chatId ou userId)
   async getHistoryByBaseAndTarget(
     base: string,
     target: string,
   ): Promise<ConversionHistory[]> {
-    return this.historyRepository.find({ where: { base, target } });
+    return this.historyRepository.find({
+      where: { base, target },
+      order: { timestamp: 'DESC' },
+    });
+  }
+
+  async getAllHistory(): Promise<ConversionHistory[]> {
+    return this.historyRepository.find({
+      order: { timestamp: 'DESC' },
+    });
   }
 }

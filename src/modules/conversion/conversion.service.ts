@@ -7,7 +7,7 @@ import { ConversionResponse } from './conversion.interfaces';
 export class ConversionService {
   constructor(
     private readonly currencyApiService: CurrencyApiService,
-    private readonly historyService: HistoryService, // Injeção do HistoryService
+    private readonly historyService: HistoryService,
   ) {}
 
   async convertCurrency(
@@ -25,7 +25,10 @@ export class ConversionService {
     };
 
     await this.historyService.saveConversion(conversionResult);
-
     return conversionResult;
+  }
+
+  async getConversionHistory() {
+    return this.historyService.getAllHistory();
   }
 }

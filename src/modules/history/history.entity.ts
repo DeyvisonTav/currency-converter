@@ -20,6 +20,12 @@ export class ConversionHistory {
   @Column('decimal', { precision: 10, scale: 6 })
   rate: number;
 
+  @Column({ nullable: true })
+  chatId?: string;
+
+  @Column({ nullable: true })
+  userId?: string;
+
   @Column({ type: 'jsonb', nullable: true })
   metadata: Record<string, any>;
 

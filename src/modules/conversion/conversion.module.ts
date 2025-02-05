@@ -8,5 +8,6 @@ import { HistoryModule } from '../history/history.module';
   imports: [CurrencyApiModule, HistoryModule],
   controllers: [ConversionController],
   providers: [ConversionService],
+  exports: [ConversionService],
 })
 export class ConversionModule {}
