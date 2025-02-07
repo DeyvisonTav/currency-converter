@@ -14,7 +14,6 @@ Este projeto foi criado para **explorar tecnologias bancárias e fintechs**, apl
 ✅ **Banco de dados PostgreSQL** utilizando JSONB para armazenar histórico de taxas  
 ✅ **Bot do Telegram** para consultas rápidas via chat  
 ✅ **AWS Lambda e S3** para armazenamento e cálculos serverless  
-✅ **Autenticação com AWS Cognito**  
 
 
 ---
