@@ -15,19 +15,19 @@ Este projeto foi criado para **explorar tecnologias bancárias e fintechs**, apl
 ✅ **Bot do Telegram** para consultas rápidas via chat  
 ✅ **AWS Lambda e S3** para armazenamento e cálculos serverless  
 ✅ **Autenticação com AWS Cognito**  
-✅ **Painel web (Next.js) opcional** para visualizar histórico
+
 
 ---
 
 ## 🛠️ Tecnologias Utilizadas
 
 - **Backend:** NestJS + TypeScript
-- **Banco de Dados:** PostgreSQL + Prisma ORM
+- **Banco de Dados:** PostgreSQL + TypeORM
 - **Cache:** Redis
 - **Mensageria:** Webhooks para comunicação do Bot
-- **Infraestrutura:** AWS (Lambda, S3, RDS, Cognito, API Gateway)
+- **Infraestrutura:** AWS (Lambda, S3, RDS, API Gateway)
 - **Integração:** Open Exchange Rates API
-- **Frontend (Opcional):** Next.js
+
 
 ---
 
