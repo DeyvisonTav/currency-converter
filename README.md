@@ -1,4 +1,3 @@
-````markdown
 # 💱 Currency Converter API | NestJS + PostgreSQL + AWS + Telegram Bot
 
 🚀 **Plataforma de Conversão de Moeda** desenvolvida com **NestJS, PostgreSQL e AWS (Free Tier)**, integrada a um **Bot do Telegram** para consultas rápidas de taxas de câmbio.
@@ -49,7 +48,6 @@ Os usuários podem interagir com o bot enviando comandos simples:
 git clone https://github.com/DeyvisonTav/currency-converter.git
 cd currency-converter
 ```
-````
 
 ### 2️⃣ Configure as Variáveis de Ambiente
 
@@ -106,16 +104,16 @@ A API será iniciada em **http://localhost:3000**.
 
 Este projeto pode ser implantado na AWS utilizando **Lambda, S3 e RDS (PostgreSQL Free Tier)**.
 
-1️⃣ **Configurar AWS Lambda** para cálculos de conversão  
-2️⃣ **Utilizar S3** para armazenar logs e histórico de consultas  
+1️⃣ **Configurar AWS Lambda** para cálculos de conversão
+2️⃣ **Utilizar S3** para armazenar logs e histórico de consultas
 3️⃣ **Configurar RDS PostgreSQL** para o banco de dados
 
 ---
 
 ## 📌 Próximos Passos
 
-✅ Melhorar logging e monitoramento na AWS  
-✅ Implementar fila de mensagens para requisições assíncronas  
+✅ Melhorar logging e monitoramento na AWS
+✅ Implementar fila de mensagens para requisições assíncronas
 ✅ Criar suporte para múltiplos provedores de câmbio
 
 ---
