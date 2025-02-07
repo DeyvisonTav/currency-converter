@@ -2,18 +2,32 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ConversionHistory } from './history.entity';
+import { S3Service } from '../../core/storage/s3.service';
 
 @Injectable()
 export class HistoryService {
   constructor(
     @InjectRepository(ConversionHistory)
     private readonly historyRepository: Repository<ConversionHistory>,
+    private readonly s3Service: S3Service,
   ) {}
 
   async saveConversion(
     data: Partial<ConversionHistory>,
   ): Promise<ConversionHistory> {
-    return this.historyRepository.save(data);
+    const saved = await this.historyRepository.save(data);
+    const fileName = `history/${saved.id}.json`;
+
+    try {
+      await this.s3Service.uploadFile(fileName, JSON.stringify(saved));
+    } catch (error) {
+      console.error(
+        '⚠️ Falha ao enviar para o S3, mas a conversão foi salva no banco:',
+        error,
+      );
+    }
+
+    return saved;
   }
 
   async getHistoryByChatId(chatId: string): Promise<ConversionHistory[]> {

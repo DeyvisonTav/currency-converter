@@ -1,0 +1,31 @@
+service: currency-converter-api
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  environment:
+    POSTGRES_HOST: ${ssm:/currency-converter/POSTGRES_HOST}
+    POSTGRES_USER: ${ssm:/currency-converter/POSTGRES_USER}
+    POSTGRES_PASSWORD: ${ssm:/currency-converter/POSTGRES_PASSWORD}
+    POSTGRES_DB: ${ssm:/currency-converter/POSTGRES_DB}
+    CURRENCY_API_URL: ${ssm:/currency-converter/CURRENCY_API_URL}
+    TELEGRAM_BOT_TOKEN: ${ssm:/currency-converter/TELEGRAM_BOT_TOKEN}
+    S3_BUCKET_NAME: currency-converter-logs
+
+functions:
+  api:
+    handler: src/main.lambda.handler
+    events:
+      - http:
+          path: /
+          method: any
+          cors: true
+      - http:
+          path: '{proxy+}'
+          method: any
+          cors: true
+
+plugins:
+  - serverless-offline
+  - serverless-plugin-typescript
