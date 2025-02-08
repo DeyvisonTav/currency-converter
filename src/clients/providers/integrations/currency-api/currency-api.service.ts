@@ -4,7 +4,9 @@ import axios from 'axios';
 
 @Injectable()
 export class CurrencyApiService {
-  private readonly apiUrl = process.env.CURRENCY_API_URL;
+  private readonly apiUrl =
+    process.env.CURRENCY_API_URL ||
+    'https://economia.awesomeapi.com.br/json/last';
 
   constructor(private readonly cacheService: CacheService) {}
 
